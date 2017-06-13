@@ -1,41 +1,23 @@
 var express = require('express');
-var bodyparser = require('body-parser');
+var bodyParser = require('body-parser');
 var mongoosel = require('mongoose');
 
 
-var mongoose = require('./db/mongoose');
-//var ToDo = require('./models/todo');
-var User = require('./models/user');
+var {mongoose} = require('./db/mongoose');
+var {Todo} = require('./models/todo');
+var {User} = require('./models/user');
 
 var app = express();
-app.use(bodyparser.json());
-
-
-var ToDo = mongoosel.model('ToDos', {
-    text : {
-       type: String,
-       required: true,
-       minlength: 1,
-       trim: true
-    },
-    completed : {
-       type: Boolean,
-       default: false
-    },
-    completedAt: {
-      type: Number,
-      default: null
-    }
-});
+app.use(bodyParser.json());
 
 // post todo
 app.post('/todos', (req, res) => {
     console.log(req.body);
-    var newTodo = new ToDo({
+    var todo = new Todo({
         text: req.body.text
     });
     
-    newTodo.save().then((doc)=> {
+    todo.save().then((doc)=> {
         res.send(doc)
     }, (e) => {
         res.send(e);

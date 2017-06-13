@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var ToDo = mongoose.model('ToDos', {
+var Todo = mongoose.model('Todo', {
     text : {
        type: String,
        required: true,
@@ -17,6 +17,4 @@ var ToDo = mongoose.model('ToDos', {
     }
 });
 
-module.exports = {
-    ToDo
-};
+module.exports = {Todo};
