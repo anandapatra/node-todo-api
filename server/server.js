@@ -18,17 +18,21 @@ app.post('/todos', (req, res) => {
     });
     
     todo.save().then((doc)=> {
-        res.send(doc)
+        res.send(doc);
     }, (e) => {
         res.status(400).send(e);
-    });   
-
+    });  
 });
 
 
 // get todo
 app.get('/todos', (req, res) => {
 
+   Todo.find().then((docs)=>{
+      res.send(docs);
+   }, (e) => {
+      res.status(400).send(e);
+   }); 
 });
 
 
