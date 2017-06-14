@@ -56,10 +56,30 @@ app.get('/todo/:id', (req, res)=> {
     
 });
 
+// remove a todo by id
+
+app.delete('/todo/:id', (req, res) => {
+    var id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send({status: 'Object ID is invalid'});
+    }
+    Todo.findByIdAndRemove(id).then((doc)=> {
+        if (!doc) {
+            return res.status(400).send({status: 'Document is not found'});
+        }
+        res.send(doc);
+    }, (e) => {
+        res.status(400).send({status: 'Unable to process'});
+    });
+});
+
+
+
+
 
 
 app.listen(port, () =>{
     console.log(`Server started on port ${port}`);
-})
+});
 
 module.exports = {app};
