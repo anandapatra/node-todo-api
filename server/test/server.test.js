@@ -100,4 +100,27 @@ describe('GET /todo/:id', ()=> {
 });
 
 
+// test case for /todo/:id 
+describe('DELETE /todo/:id', ()=> {
+    it('it should remove todo doc',(done)=>{
+        request(app)
+        .delete(`/todo/${todos[1]._id.toHexString()}`)
+        .expect(200)
+        .expect((res) => {
+            expect(res.body.text).toBe(todos[1].text);
+        }).end(done);
+    });
+
+    Todo.findById(todos[1]._id.toHexString()).then((doc) =>{
+         expect(null).toNotExist();
+         done();
+    }).catch((e) => done(e));
+
+    // add more test for invalid object id 
+
+
+    // add more test for no result 
+});
+
+
 
