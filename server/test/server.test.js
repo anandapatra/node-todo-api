@@ -123,4 +123,28 @@ describe('DELETE /todo/:id', ()=> {
 });
 
 
+// test case for /todo/:id 
+describe('PATCH /todo/:id', ()=> {
+    it('it should patch todo doc',(done)=>{
+        request(app)
+        .patch(`/todo/${todos[1]._id.toHexString()}`)
+        .send(todos[0])
+        .expect(200)
+        .expect((res) => {
+            expect(res.body.text).toBe(todos[0].text);
+        }).end(done);
+    });
+
+    Todo.findById(todos[1]._id.toHexString()).then((doc) =>{
+         expect(null).toNotExist();
+         done();
+    }).catch((e) => done(e));
+
+    // add more test for invalid object id 
+
+
+    // add more test for no result 
+});
+
+
 
