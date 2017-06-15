@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoosel = require('mongoose');
+var _ = require('lodash');
 var {ObjectID} = require('mongodb');
 
 
@@ -73,6 +74,35 @@ app.delete('/todo/:id', (req, res) => {
     });
 });
 
+
+
+// update a todo by id
+app.patch('/todo/:id', (req, res)=> {
+    var id = req.params.id;
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send({status: 'Object ID is invalid'});
+    }
+
+    if (_.isBoolean(body.completed) && body.completed) {        
+        body.completedAt = new Date().getTime();
+    }
+    else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    Todo.findByIdAndUpdate(id, {$set: body}, {new:true}).then((doc) => {
+            if (!doc) {
+                return res.status(400).send({status: 'Document is not found'});
+            }
+       res.send(doc);
+    }, (e) => {
+       res.status(400).send({status: 'Unable to process'});
+    });
+
+});
 
 
 
