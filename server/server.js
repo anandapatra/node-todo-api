@@ -22,12 +22,12 @@ app.post('/todos', (req, res) => {
     var todo = new Todo({
         text: req.body.text
     });
-    
+
     todo.save().then((doc)=> {
         res.send(doc);
     }, (e) => {
         res.status(400).send(e);
-    });  
+    });
 });
 
 
@@ -38,13 +38,13 @@ app.get('/todos', (req, res) => {
       res.send(docs);
    }, (e) => {
       res.status(400).send(e);
-   }); 
+   });
 });
 
 
-// get todo by id 
+// get todo by id
 
-app.get('/todo/:id', (req, res)=> {    
+app.get('/todo/:id', (req, res)=> {
     var id = req.params.id;
     if (!ObjectID.isValid(id)) {
         return res.status(400).send({status: 'Object ID is invalid'});
@@ -56,7 +56,7 @@ app.get('/todo/:id', (req, res)=> {
     }, (e) => {
         res.status(400).send({status: 'Unable to process'});
     });
-    
+
 });
 
 // remove a todo by id
@@ -87,7 +87,7 @@ app.patch('/todo/:id', (req, res)=> {
         return res.status(400).send({status: 'Object ID is invalid'});
     }
 
-    if (_.isBoolean(body.completed) && body.completed) {        
+    if (_.isBoolean(body.completed) && body.completed) {
         body.completedAt = new Date().getTime();
     }
     else {
@@ -106,18 +106,23 @@ app.patch('/todo/:id', (req, res)=> {
 
 });
 
-
+// sign up user
 app.post('/user', (req, res) => {
       var body = _.pick(req.body, ['email', 'password']);
       var user = new User(body);
 
-      user.save().then((user) => {
-         res.send(user);
+      user.save().then(() => {
+        return user.generateAuthToken();
+      }).then((token)=> {
+        console.log(token);
+        res.header('x-auth', token.tokens[0].token).send(user);
+
       }).catch((e) => {
+        console.log('Error Happened', e);
           res.status(400).send(e);
       });
 
-})
+});
 
 
 app.listen(port, () =>{
