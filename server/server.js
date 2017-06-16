@@ -107,6 +107,19 @@ app.patch('/todo/:id', (req, res)=> {
 });
 
 
+app.post('/user', (req, res) => {
+      var body = _.pick(req.body, ['email', 'password']);
+      var user = new User(body);
+
+      user.save().then((user) => {
+         res.send(user);
+      }).catch((e) => {
+          res.status(400).send(e);
+      });
+
+})
+
+
 app.listen(port, () =>{
     console.log(`Server started on port ${port}`);
 });
