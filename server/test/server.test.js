@@ -4,28 +4,13 @@ var {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
-
-const todos = [ {
-   _id: new ObjectID(),
-   text: 'First to do test'
-}, {
-   _id: new ObjectID(),
-   text: 'second to do test'
-}];
-
-
-
-beforeEach((done) => {
-    Todo.remove({}).then(()=> {
-       Todo.insertMany(todos)
-       }).then(()=> {
-           done();
-    });
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', ()=> {
-    
+
      it('should create a new todo', (done)=> {
            var text = 'Test todo text';
            request(app)
@@ -48,7 +33,7 @@ describe('POST /todos', ()=> {
            });
      });
 
-     it('it should not create a new todo', (done)=> {         
+     it('it should not create a new todo', (done)=> {
            request(app)
            .post('/todos')
            .send({})
@@ -60,7 +45,7 @@ describe('POST /todos', ()=> {
                 if (err)
                    return done(err);
                 Todo.find().then((todos)=> {
-                      expect(todos.length).toBe(2);                     
+                      expect(todos.length).toBe(2);
                       done();
                 }).catch((e) => {
                     done(e);
@@ -82,7 +67,7 @@ describe('GET /todos', ()=> {
 
 });
 
-// test case for /todo/:id 
+// test case for /todo/:id
 describe('GET /todo/:id', ()=> {
     it('it should return todo doc',(done)=>{
         request(app)
@@ -93,14 +78,14 @@ describe('GET /todo/:id', ()=> {
         }).end(done);
     });
 
-    // add more test for invalid object id 
+    // add more test for invalid object id
 
 
-    // add more test for no result 
+    // add more test for no result
 });
 
 
-// test case for /todo/:id 
+// test case for /todo/:id
 describe('DELETE /todo/:id', ()=> {
     it('it should remove todo doc',(done)=>{
         request(app)
@@ -116,14 +101,14 @@ describe('DELETE /todo/:id', ()=> {
          done();
     }).catch((e) => done(e));
 
-    // add more test for invalid object id 
+    // add more test for invalid object id
 
 
-    // add more test for no result 
+    // add more test for no result
 });
 
 
-// test case for /todo/:id 
+// test case for /todo/:id
 describe('PATCH /todo/:id', ()=> {
     it('it should patch todo doc',(done)=>{
         request(app)
@@ -140,11 +125,75 @@ describe('PATCH /todo/:id', ()=> {
          done();
     }).catch((e) => done(e));
 
-    // add more test for invalid object id 
+    // add more test for invalid object id
 
 
-    // add more test for no result 
+    // add more test for no result
 });
 
 
+describe('GET /user/me', () => {
+  it('shoud return user if authenticated', (done) => {
+      request(app)
+      .get('/user/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect((res)=> {
+        expect(res.body._id).toBe(users[0]._id.toHexString());
+        expect(res.body.email).toBe(users[0].email);
+      })
+      .end(done);
+  });
 
+  it('should return 401 if not authentiated', (done) => {
+     request(app)
+     .get('/user/me')
+     .set('x-auth', 'qweq')
+     .expect(401)
+     .expect((res) =>{
+         //console.log(res);
+         expect(res.body).toEqual({});
+     })
+     .end(done);
+  });
+})
+
+describe('POST /user', ()=> {
+  it('should craete a user', (done)=>{
+      var email = 'example@example.com';
+      var password = '123abc!';
+
+      request(app)
+      .post('/user')
+      .send({email, password})
+      .expect(200)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toExist();
+        expect(res.body._id).toExist();
+        expect(res.body.email).toBe(email);
+      })
+      .end(done);
+  })
+
+  it('should return validation error if request invalid', (done)=>{
+       var email = 'abc.com';
+       var password = '1213';
+
+       request(app)
+       .post('/user')
+       .send({email, password})
+       .expect(400)
+       .end(done);
+  })
+
+  it('shuould not crate user if email in use', (done)=>{
+    var email = 'xample@example.com';
+    var password = '1213';
+
+    request(app)
+    .post('/user')
+    .send({email, password})
+    .expect(400)
+    .end(done);
+  })
+})

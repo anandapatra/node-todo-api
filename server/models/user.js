@@ -60,7 +60,7 @@ UserSchema.statics.findByToken = function (token) {
   } catch (e) {
      return Promise.reject();
   }
-  console.log(decoded);
+//  console.log(decoded);
   return User.findById({
       '_id': decoded._id,
       'tokens.token': token,
@@ -73,7 +73,7 @@ UserSchema.pre('save', function (next) {
   if (user.isModified('password')) {
       bcrypt.genSalt(10,(err, salt)=> {
         bcrypt.hash(user.password, salt, (err, hash) => {
-          console.log(hash);
+      //    console.log(hash);
           user.password = hash;
           next();
         });
