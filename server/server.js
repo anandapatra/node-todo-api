@@ -4,6 +4,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoosel = require('mongoose');
 var _ = require('lodash');
+var {authenticate} = require('./middleware/authenticate');
 var {ObjectID} = require('mongodb');
 
 
@@ -124,6 +125,10 @@ app.post('/user', (req, res) => {
 
 });
 
+// get a user with auth
+app.get('/user/me', authenticate, (req, res) => {
+     res.send(req.user);
+});
 
 app.listen(port, () =>{
     console.log(`Server started on port ${port}`);
