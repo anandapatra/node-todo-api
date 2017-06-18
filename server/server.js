@@ -87,7 +87,7 @@ app.delete('/todo/:id', authenticate, (req, res) => {
 
 
 // update a todo by id
-app.patch('/todo/:id', (req, res)=> {
+app.patch('/todo/:id', authenticate, (req, res)=> {
     var id = req.params.id;
     var body = _.pick(req.body, ['text', 'completed']);
 
