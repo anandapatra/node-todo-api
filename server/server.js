@@ -18,10 +18,11 @@ app.use(bodyParser.json());
 
 
 // post todo
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     console.log(req.body);
     var todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     todo.save().then((doc)=> {
@@ -33,9 +34,11 @@ app.post('/todos', (req, res) => {
 
 
 // get todo
-app.get('/todos', (req, res) => {
+app.get('/todos', authenticate, (req, res) => {
 
-   Todo.find().then((docs)=>{
+   Todo.find({
+     _creator: req.user._id
+   }).then((docs)=>{
       res.send(docs);
    }, (e) => {
       res.status(400).send(e);
@@ -45,12 +48,15 @@ app.get('/todos', (req, res) => {
 
 // get todo by id
 
-app.get('/todo/:id', (req, res)=> {
+app.get('/todo/:id', authenticate, (req, res)=> {
     var id = req.params.id;
     if (!ObjectID.isValid(id)) {
         return res.status(400).send({status: 'Object ID is invalid'});
     }
-    Todo.findById(id).then((doc)=> {
+    Todo.findOne({
+      _id: id,
+      _creator: request.user._id
+      }).then((doc)=> {
         if (!doc)
          return res.status(400).send({status: 'Document is not found'});
         res.send(doc);
@@ -62,12 +68,13 @@ app.get('/todo/:id', (req, res)=> {
 
 // remove a todo by id
 
-app.delete('/todo/:id', (req, res) => {
+app.delete('/todo/:id', authenticate, (req, res) => {
     var id = req.params.id;
     if (!ObjectID.isValid(id)) {
         return res.status(400).send({status: 'Object ID is invalid'});
     }
-    Todo.findByIdAndRemove(id).then((doc)=> {
+    Todo.findOneAndRemove({_id: id,
+    _creator: req.user._id}).then((doc)=> {
         if (!doc) {
             return res.status(400).send({status: 'Document is not found'});
         }
@@ -96,7 +103,8 @@ app.patch('/todo/:id', (req, res)=> {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, {$set: body}, {new:true}).then((doc) => {
+    Todo.findOneAndUpdate({_id: id,
+    _creator: req.user._id}, {$set: body}, {new:true}).then((doc) => {
             if (!doc) {
                 return res.status(400).send({status: 'Document is not found'});
             }

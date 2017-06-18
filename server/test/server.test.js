@@ -16,6 +16,7 @@ describe('POST /todos', ()=> {
            var text = 'Test todo text';
            request(app)
            .post('/todos')
+           .set('x-auth', users[0].tokens[0].token)
            .send({text})
            .expect(200)
            .expect((res) => {
@@ -37,6 +38,7 @@ describe('POST /todos', ()=> {
      it('it should not create a new todo', (done)=> {
            request(app)
            .post('/todos')
+           .set('x-auth', users[0].tokens[0].token)
            .send({})
            .expect(400)
            .expect((res) => {
@@ -60,9 +62,10 @@ describe('GET /todos', ()=> {
     it('should get todo data', (done)=> {
          request(app)
          .get('/todos')
+         .set('x-auth', users[0].tokens[0].token)
          .expect(200)
          .expect((res) => {
-             expect(res.body.length).toBe(2);
+             expect(res.body.length).toBe(1);
          }).end(done);
     });
 
@@ -73,6 +76,7 @@ describe('GET /todo/:id', ()=> {
     it('it should return todo doc',(done)=>{
         request(app)
         .get(`/todo/${todos[0]._id.toHexString()}`)
+        .set('x-auth', users[0].tokens[0].token)
         .expect(200)
         .expect((res) => {
             expect(res.body.text).toBe(todos[0].text);
@@ -91,6 +95,7 @@ describe('DELETE /todo/:id', ()=> {
     it('it should remove todo doc',(done)=>{
         request(app)
         .delete(`/todo/${todos[1]._id.toHexString()}`)
+        .set('x-auth', users[1].tokens[0].token)
         .expect(200)
         .expect((res) => {
             expect(res.body.text).toBe(todos[1].text);
@@ -114,7 +119,8 @@ describe('PATCH /todo/:id', ()=> {
     it('it should patch todo doc',(done)=>{
         request(app)
         .patch(`/todo/${todos[1]._id.toHexString()}`)
-        .send(todos[0])
+        .set('x-auth', users[1].tokens[0].token)
+        .send(todos[1])
         .expect(200)
         .expect((res) => {
             expect(res.body.text).toBe(todos[0].text);
